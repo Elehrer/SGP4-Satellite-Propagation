@@ -1,1 +1,3 @@
+#this info was generated with 25 GPS satellites
+#1st column is Epoch, while 2nd through 5th entries are the diagonal entries for the dilution of precision matrix
 1469000000.0	8398.32683851	70156.5023496	6552697207.8	6552690736.5

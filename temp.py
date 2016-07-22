@@ -2,7 +2,7 @@
 """
 Spyder Editor
 """
-
+#everything between here and line 169 is for calculations, just go to main function!
 from __future__ import division
 from sgp4.earth_gravity import wgs72
 from sgp4.io import twoline2rv
@@ -11,7 +11,6 @@ import time
 
 from numpy import (sin, cos, tan, sqrt, radians, arctan2, hypot, degrees, mod)
 
-#Lines 15 through 168 are editted from coordconv3d
 class EarthEllipsoid:
 
     def __init__(self):
@@ -167,10 +166,10 @@ def enu2aer(e, n, u, deg=True):
     else:
         return az, elev, slantRange  # radians    
 
-#----
+#--------------------------------------------------------
 
-def getCurrentTime():
-    currentTime = strftime("%Y %m %d %H %M %S", gmtime())
+def getTime(timeType = gmtime()):
+    currentTime = strftime("%Y %m %d %H %M %S", timeType)
     year = int(currentTime[0:4])
     month = int(currentTime[5:7])
     day = int(currentTime[8:10])
@@ -191,30 +190,21 @@ def getInputs():
     stopTime = int(input('Please enter stop time (in terms of Epoch): '))
 
     return header, line1,line2,decimationRate,startTime,stopTime
-    
-def convertEpochToDatetime(epoch):
-    currentTime = strftime("%Y %m %d %H %M %S", time.localtime(epoch))
-    year = int(currentTime[0:4])
-    month = int(currentTime[5:7])
-    day = int(currentTime[8:10])
-    hour = int(currentTime[11:13])
-    minute = int(currentTime[14:16])
-    second = int(currentTime[17:19])
-    return year, month, day, hour, minute, second
 
-def writeToFiles(header, startTime, stopTime, decimationRate, satellite, lat=33.0754490, lon = -117.2492680, alt = 68.25):
+def writeToFiles(header, startTime, stopTime, decimationRate, satellite, lat=33.0754490, lon = -117.2492680, alt = 68.25): #these lattitude, longitude, and altitude are just test coordinates
     
     epochToCheck = startTime - 1    
     
-    year, month, day, hour, minute, second, epoch = getCurrentTime()    
+    year, month, day, hour, minute, second, epoch = getTime()    
     filename = ("Results For " + header)
-    #toOpenFileAsAppend = 'a'
+    #toOpenFileAsAppend = 'a'g
     file = open("XYZ " + filename, 'w')  #opens XYZ file
     file2 = open("ENU " + filename, 'w')  #opens ENU file
     
     #print(int(mktime(localtime())) >= startTime)
     #print(int(mktime(localtime())) <= stopTime)
 
+    #all header lines written to files start with "%" so they are easier to import into matlab
     file.write("% XYZ Results For " + header + "\n")  #writes title of document
     file.write("%% Run on %s/%s/%s \n" % (month, day, year))  #writes date to document
     file.write("% Epoch \t X-Coord \t Y-Coord \t Z-Coord \n")  #labelling columns: Epoch, X, Y, Z
@@ -226,7 +216,7 @@ def writeToFiles(header, startTime, stopTime, decimationRate, satellite, lat=33.
     
     while(epochToCheck <= stopTime):
         epochToCheck+=1
-        year, month, day, hour, minute, second = convertEpochToDatetime(epochToCheck)
+        year, month, day, hour, minute, second = getTime(time.localTime(epochToCheck))
         
         
         position, velocity = satellite.propagate(year,month,day,hour,minute,second)
@@ -241,8 +231,6 @@ def writeToFiles(header, startTime, stopTime, decimationRate, satellite, lat=33.
 
             file.write(str(position[2]) + "\n")
 
-            
-            #test location: (lat, lon, alt = 33.0754490, -117.2492680, 68.25)
             n, e, u = ecef2ned(position[0], position[1], position[2], lat, lon, alt)
             length = sqrt(n**2+e**2+u**2)
             file2.write(str(epochToCheck) + "\t") #writes epoch
@@ -252,8 +240,8 @@ def writeToFiles(header, startTime, stopTime, decimationRate, satellite, lat=33.
             
             az, elev, slantRange = enu2aer(e, n, u)  #azimuth and elevation both in degrees          
             
-            file2.write(str(az) + "\t") 
-            file2.write(str(elev) + "\n")
+            file2.write(str(az) + "\t") #writes azimuth
+            file2.write(str(elev) + "\n") #writes elevation
             
             
         epochToCheck+=1
@@ -262,40 +250,8 @@ def writeToFiles(header, startTime, stopTime, decimationRate, satellite, lat=33.
     print("Finished")
 
 def main():
-    
-    print("Current epoch is %i.\n" % int(mktime(localtime())))
-    
-        
-    #header, line1, line2, decimationRate, startTime, stopTime = getInputs()
-    header = "GPS BIIR-2  (PRN 13)"
-    line1 = "1 24876C 97035A   16205.82646991  .00000000  00000-0  00000-0 0  2050"
-    line2 = "2 24876  55.6435 240.0474 0039275 115.8266 119.2660  2.00562430    11"
-    decimationRate = 2
-    startTime = 1469000000
-    stopTime = 1469010000
-    satellite = twoline2rv(line1,line2,wgs72)
-    print(satellite.jdsatepoch)
-    print(satellite.epochyr)
-    writeToFiles(header, startTime, stopTime, decimationRate, satellite)
-    """ 
-    
-    header = "GPS BIIA-10 (PRN 32)"
-    line1 = "1 20959U 90103A   15198.24584295  .00000022  00000-0  00000+0 0  9994"
-    line2 = "2 20959  54.2583 193.0262 0112595   3.1961 356.8684  2.00556888180449"
-    satellite = twoline2rv(line1,line2,wgs72)
-    
-    startTime = int(mktime(localtime()))
-    stopTime = int(mktime(localtime())) + 3
-    decimationRate = 2
-    writeToFiles(header,startTime,stopTime,decimationRate,satellite)
-    """ #move these quotes to line 288 to use default values instead of having to user input every time
-    
-main()
-"""
-year, month, day, hour, minute, second = convertEpochToDatetime(1469000000)
-print(year)
-print(month)
-print(day)
-print(hour)
-print(minute)
-  """      
+    fileHeader, TLEline1, TLEline2, decimationRate, startTime, stopTime = getInputs() #first, get all input values from user
+    satellite = twoline2rv(TLEline1,TLEline2,wgs72) #next, create an sgp4 satellite based on inputted TLEs and the wgs72 gravitational model 
+    writeToFiles(fileHeader, startTime, stopTime, decimationRate, satellite) #last, writes two files, one for XYZ coordinates during epoch range and one for ENU (plus azimuth and elevation) during the time range
+
+main()  

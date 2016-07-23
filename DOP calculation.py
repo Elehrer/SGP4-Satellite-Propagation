@@ -10,7 +10,7 @@ import numpy
 from numpy import linalg
 
 constellationName = input("Please enter constellation name: ")
-file = open("/Users/Elliott/.spyder2-py3/" + "Final %s Results" % (constellationName), 'w')
+file = open("Final %s Results" % (constellationName), 'w')
 list = os.listdir("/Users/Elliott/.spyder2-py3")
 lineToCopy = 5
 
